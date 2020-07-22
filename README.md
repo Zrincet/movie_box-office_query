@@ -10,7 +10,7 @@
 ```
 注意：movie_num为将要储存的电影数量，无此参数时默认为20部，如数量超过数据源全部数据的长度，则按照数据源实际的数量储存  
 ## How to use
-利用mini-media-player，显示电影数量
+利用list-card，显示电影数量
 在Lovelace配置中
 ```yaml
 columns:
