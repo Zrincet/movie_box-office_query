@@ -1,0 +1,10 @@
+{
+  "domain": "movie_box-office_query",
+  "name": "Movie box-office query",
+  "documentation": "https://github.com/zrincet/movie_box-office_query",
+  "requirements": [],
+  "dependencies": [],
+  "codeowners": [
+    "@zrincet"
+  ]
+}
