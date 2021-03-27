@@ -20,13 +20,11 @@ from requests.exceptions import (
 from bs4 import BeautifulSoup
 import json
 
-__version__ = '0.1.0'
+__version__ = '1.0.1'
 _LOGGER = logging.getLogger(__name__)
 
-REQUIREMENTS = ['requests', 'beautifulsoup4']
-
 COMPONENT_REPO = 'https://github.com/zrincet/movie_box-office_query/'
-SCAN_INTERVAL = timedelta(seconds=120)
+SCAN_INTERVAL = timedelta(seconds=600)
 CONF_OPTIONS = "options"
 CONF_NUM = 'movie_num'
 ATTR_UPDATE_TIME = "更新时间"
@@ -86,7 +84,6 @@ class MovieBoxOfficeSensor(Entity):
             _LOGGER.error("Unable to connect to maoyan site. %s", error)
 
         try:
-            import time
             time_stamp = re_json['movieList']['data']['updateInfo']['updateTimestamp'] / 1000
             time_array = time.localtime(time_stamp)
             self._updateTime = time.strftime("%Y-%m-%d %H:%M:%S", time_array)
@@ -98,10 +95,21 @@ class MovieBoxOfficeSensor(Entity):
                 tmp_num = self._movieNum
             else:
                 tmp_num = len(list(movie_list))
+            num_dict = {
+                '&#xf860;': '0',
+                '&#xe1ec;': '1',
+                '&#xf120;': '2',
+                '&#xe535;': '3',
+                '&#xe4fc;': '3',
+                '&#xeab7;': '5',
+                '&#xeab7;': '6',
+                '&#xf8e4;': '8'
+
+            }
             for i in range(0, tmp_num):
                 movie_info = {}
                 movie_info['name'] = movie_list[i]['movieInfo']['movieName']
-                movie_info['boxUnit'] = float(movie_list[i]['boxSplitUnit']['num'])
+                # movie_info['boxUnit'] = movie_list[i]['boxSplitUnit']['num']
                 movie_info['boxRate'] = movie_list[i]['boxRate']
                 movie_info['showCount'] = movie_list[i]['showCount']
                 movie_info['showCountRate'] = movie_list[i]['showCountRate']
@@ -114,7 +122,8 @@ class MovieBoxOfficeSensor(Entity):
                     response = request('GET', url_detail, headers=header, params=data)
                     response.encoding = 'utf-8'
                     movie_info_detail_json = json.loads(response.text)
-                    movie_info['imgUrl'] = str(movie_info_detail_json['movieInfo']['imgUrl']).replace('w.h/', '')
+                    movie_info['boxUnit'] = float(movie_info_detail_json['data']['boxTrends'][-1]['boxDesc'].replace('万', ''))
+                    movie_info['imgUrl'] = str(movie_info_detail_json['data']['movieInfo']['imgUrl']).replace('w.h/', '').replace("http://", 'https://')
                 except Exception as e:
                     _LOGGER.error("Something wrong in movie box-office. with get imgUrl %s", e)
 
